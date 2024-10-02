@@ -26,7 +26,7 @@ const generateText = (unlockedLetters: string, lastLetterMastered: boolean, word
     return generateRandomLetters(unlockedLetters, wordCount * 5)
   }
 
-  let generatedText = []
+  const generatedText = []
   for (let i = 0; i < wordCount; i++) {
     generatedText.push(availableWords[Math.floor(Math.random() * availableWords.length)])
   }
@@ -45,8 +45,6 @@ export default function ProgressiveTouchTypingTrainer() {
   const [text, setText] = useState('')
   const [userInput, setUserInput] = useState('')
   const [startTime, setStartTime] = useState<number | null>(null)
-  const [wordCount, setWordCount] = useState(0)
-  const [charCount, setCharCount] = useState(0)
   const [accuracy, setAccuracy] = useState(100)
   const [wpm, setWpm] = useState(0)
   const [lastLetterMastered, setLastLetterMastered] = useState(true)
@@ -56,8 +54,6 @@ export default function ProgressiveTouchTypingTrainer() {
     setText(newText)
     setUserInput('')
     setStartTime(null)
-    setWordCount(0)
-    setCharCount(0)
     setAccuracy(100)
     setWpm(0)
   }, [unlockedLetters, lastLetterMastered])
@@ -75,10 +71,8 @@ export default function ProgressiveTouchTypingTrainer() {
     }
 
     const words = inputValue.trim().split(/\s+/)
-    setWordCount(words.length)
 
     const accurateChars = inputValue.split('').filter((char, index) => char === text[index]).length
-    setCharCount(accurateChars)
     setAccuracy(Math.round((accurateChars / inputValue.length) * 100) || 100)
 
     const timeElapsed = (Date.now() - (startTime || Date.now())) / 60000 // in minutes
@@ -114,7 +108,7 @@ export default function ProgressiveTouchTypingTrainer() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap justify-center gap-1" aria-label="Unlocked letters">
-            {allLetters.split('').map((letter, index) => (
+            {allLetters.split('').map((letter) => (
               <span
                 key={letter}
                 className={`w-6 h-6 flex items-center justify-center rounded ${
