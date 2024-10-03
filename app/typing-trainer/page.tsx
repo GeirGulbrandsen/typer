@@ -10,34 +10,39 @@ const allLetters = 'etaoinshrdlcumwfgypbvkjxqz'
 const initialUnlockedLetters = 'etaoin'
 
 const generateText = (unlockedLetters: string, lastLetterMastered: boolean, wordCount: number = 10) => {
-  const lastUnlockedLetter = unlockedLetters[unlockedLetters.length - 1]
-  const isInitialSet = unlockedLetters === initialUnlockedLetters
-  const isAllUnlocked = unlockedLetters === allLetters
+  if (unlockedLetters === allLetters) {
+    // All letters are unlocked, include pangrams in the selection
+    const allOptions = [...defaultWordList, ...defaultWordList.slice(-5)] // Add pangrams to the options
+    return allOptions[Math.floor(Math.random() * allOptions.length)]
+  }
 
   let availableWords = defaultWordList.filter(word => 
-    word.split('').every(letter => unlockedLetters.includes(letter))
+    word.split('').every(letter => unlockedLetters.includes(letter) || !allLetters.includes(letter))
   )
 
-  if (!isInitialSet && !isAllUnlocked && !lastLetterMastered) {
+  if (!lastLetterMastered) {
+    const lastUnlockedLetter = unlockedLetters[unlockedLetters.length - 1]
     availableWords = availableWords.filter(word => word.includes(lastUnlockedLetter))
   }
 
   if (availableWords.length === 0) {
-    return generateRandomLetters(unlockedLetters, wordCount * 5)
+    return Array(wordCount).fill('a').join(' ') // Fallback to prevent empty text
   }
 
   const generatedText = []
+  const usedWords = new Set()
+
   for (let i = 0; i < wordCount; i++) {
-    generatedText.push(availableWords[Math.floor(Math.random() * availableWords.length)])
+    let selectedWord
+    do {
+      selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)]
+    } while (usedWords.has(selectedWord) && usedWords.size < availableWords.length)
+
+    generatedText.push(selectedWord)
+    usedWords.add(selectedWord)
   }
 
   return generatedText.join(' ')
-}
-
-const generateRandomLetters = (unlockedLetters: string, length: number) => {
-  return Array.from({ length }, () => 
-    unlockedLetters[Math.floor(Math.random() * unlockedLetters.length)]
-  ).join('')
 }
 
 export default function ProgressiveTouchTypingTrainer() {
@@ -71,17 +76,16 @@ export default function ProgressiveTouchTypingTrainer() {
     }
 
     const words = inputValue.trim().split(/\s+/)
-
     const accurateChars = inputValue.split('').filter((char, index) => char === text[index]).length
-    setAccuracy(Math.round((accurateChars / inputValue.length) * 100) || 100)
+    const currentAccuracy = Math.round((accurateChars / inputValue.length) * 100) || 100
+    setAccuracy(currentAccuracy)
 
     const timeElapsed = (Date.now() - (startTime || Date.now())) / 60000 // in minutes
     const currentWpm = Math.round((words.length / timeElapsed) || 0)
     setWpm(currentWpm)
 
-    // Check if user has completed the text with high accuracy and WPM
-    if (inputValue.length === text.length && accuracy >= 95) {
-      if (currentWpm >= 30) {
+    if (inputValue.length >= text.length) {
+      if (currentAccuracy >= 95 && currentWpm >= 20) {
         if (!lastLetterMastered) {
           setLastLetterMastered(true)
         } else if (unlockedLetters !== allLetters) {
