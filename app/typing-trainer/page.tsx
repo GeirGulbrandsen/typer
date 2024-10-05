@@ -4,46 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { defaultWordList } from '../wordlists'
-
-const allLetters = 'etaoinshrdlcumwfgypbvkjxqz'
-const initialUnlockedLetters = 'etaoin'
-
-const generateText = (unlockedLetters: string, lastLetterMastered: boolean, wordCount: number = 10) => {
-  if (unlockedLetters === allLetters) {
-    // All letters are unlocked, include pangrams in the selection
-    const allOptions = [...defaultWordList, ...defaultWordList.slice(-5)] // Add pangrams to the options
-    return allOptions[Math.floor(Math.random() * allOptions.length)]
-  }
-
-  let availableWords = defaultWordList.filter(word => 
-    word.split('').every(letter => unlockedLetters.includes(letter) || !allLetters.includes(letter))
-  )
-
-  if (!lastLetterMastered) {
-    const lastUnlockedLetter = unlockedLetters[unlockedLetters.length - 1]
-    availableWords = availableWords.filter(word => word.includes(lastUnlockedLetter))
-  }
-
-  if (availableWords.length === 0) {
-    return Array(wordCount).fill('a').join(' ') // Fallback to prevent empty text
-  }
-
-  const generatedText = []
-  const usedWords = new Set()
-
-  for (let i = 0; i < wordCount; i++) {
-    let selectedWord
-    do {
-      selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)]
-    } while (usedWords.has(selectedWord) && usedWords.size < availableWords.length)
-
-    generatedText.push(selectedWord)
-    usedWords.add(selectedWord)
-  }
-
-  return generatedText.join(' ')
-}
+import { generateText, calculateAccuracy, calculateWPM, unlockNextLetter, allLetters, initialUnlockedLetters } from './typing-logic'
 
 export default function ProgressiveTouchTypingTrainer() {
   const [unlockedLetters, setUnlockedLetters] = useState(initialUnlockedLetters)
@@ -76,12 +37,10 @@ export default function ProgressiveTouchTypingTrainer() {
     }
 
     const words = inputValue.trim().split(/\s+/)
-    const accurateChars = inputValue.split('').filter((char, index) => char === text[index]).length
-    const currentAccuracy = Math.round((accurateChars / inputValue.length) * 100) || 100
+    const currentAccuracy = calculateAccuracy(inputValue, text)
     setAccuracy(currentAccuracy)
 
-    const timeElapsed = (Date.now() - (startTime || Date.now())) / 60000 // in minutes
-    const currentWpm = Math.round((words.length / timeElapsed) || 0)
+    const currentWpm = startTime ? calculateWPM(words, startTime) : 0
     setWpm(currentWpm)
 
     if (inputValue.length >= text.length) {
@@ -89,18 +48,11 @@ export default function ProgressiveTouchTypingTrainer() {
         if (!lastLetterMastered) {
           setLastLetterMastered(true)
         } else if (unlockedLetters !== allLetters) {
-          unlockNextLetter()
+          setUnlockedLetters(unlockNextLetter(unlockedLetters))
+          setLastLetterMastered(false)
         }
       }
       generateNewText()
-    }
-  }
-
-  const unlockNextLetter = () => {
-    const nextLetterIndex = allLetters.indexOf(unlockedLetters[unlockedLetters.length - 1]) + 1
-    if (nextLetterIndex < allLetters.length) {
-      setUnlockedLetters(allLetters.slice(0, nextLetterIndex + 1))
-      setLastLetterMastered(false)
     }
   }
 
