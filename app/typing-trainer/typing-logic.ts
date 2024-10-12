@@ -39,8 +39,9 @@ export const generateText = (unlockedLetters: string, lastLetterMastered: boolea
 }
 
 export const calculateAccuracy = (inputValue: string, text: string) => {
+  if (inputValue.length === 0) return 100
   const accurateChars = inputValue.split('').filter((char, index) => char === text[index]).length
-  return Math.round((accurateChars / inputValue.length) * 100) || 100
+  return Math.round((accurateChars / inputValue.length) * 100)
 }
 
 export const calculateWPM = (words: string[], startTime: number) => {
