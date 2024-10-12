@@ -71,4 +71,14 @@ describe('typing-logic', () => {
       expect(unlockNextLetter(allLetters)).toBe(allLetters);
     });
   });
+
+  describe('initialUnlockedLetters', () => {
+    it('should contain the correct initial set of letters', () => {
+      expect(initialUnlockedLetters).toBe('etaoin');
+    });
+
+    it('should be a subset of allLetters', () => {
+      expect(allLetters.includes(initialUnlockedLetters)).toBe(true);
+    });
+  });
 });
