@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { generateText, calculateAccuracy, calculateWPM, unlockNextLetter, allLetters, initialUnlockedLetters } from './typing-logic'
 
 export default function ProgressiveTouchTypingTrainer() {
@@ -79,10 +78,6 @@ export default function ProgressiveTouchTypingTrainer() {
               </span>
             ))}
           </div>
-          <Progress 
-            value={(unlockedLetters.length / allLetters.length) * 100} 
-            className="w-full"
-          />
           <div className="text-lg font-medium bg-muted p-4 rounded" aria-label="Sample text to type">
             {text}
           </div>
