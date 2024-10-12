@@ -18,10 +18,6 @@ export const generateText = (unlockedLetters: string, lastLetterMastered: boolea
     availableWords = availableWords.filter(word => word.includes(lastUnlockedLetter))
   }
 
-  if (availableWords.length === 0) {
-    return Array(wordCount).fill('a').join(' ')
-  }
-
   const generatedText = []
   const usedWords = new Set()
 
