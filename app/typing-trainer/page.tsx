@@ -57,7 +57,7 @@ export default function ProgressiveTouchTypingTrainer() {
 
   return (
     <div className="pt-8 px-4 sm:pt-12 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-3xl mx-auto">
+      <Card className="w-full max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Progressive Touch Typing Trainer</CardTitle>
         </CardHeader>
